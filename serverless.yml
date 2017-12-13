@@ -1,0 +1,25 @@
+service: signup-stormless
+
+provider:
+  name: aws
+  runtime: python2.7
+
+functions:
+  InviteSlack:
+    stackstorm:
+      action: slack.users.admin.invite
+      input:
+        email:       "{{ input.body.email }}"
+        first_name:  "{{ input.body.first_name }}"
+      config:
+        admin: ${file(env.yml):slack}
+      output:
+        statusCode: 200
+        body: "{{ output }}"
+    events:
+      - http:
+          method: POST
+          path: invite
+
+plugins:
+  - serverless-plugin-stackstorm
