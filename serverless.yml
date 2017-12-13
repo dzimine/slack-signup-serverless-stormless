@@ -16,10 +16,14 @@ functions:
       output:
         statusCode: 200
         body: "{{ output }}"
-    events:
-      - http:
-          method: POST
-          path: invite
+  RecordAC:
+    stackstorm:
+      action: activecampaign.contact_add
+      input:
+        email: "{{ input.body.email }}"
+        first_name: "{{ input.body.first_name }}"
+        last_name: "{{ input.body.last_name }}"
+      config: ${file(env.yml):active_campaign}
 
 plugins:
   - serverless-plugin-stackstorm
