@@ -1,4 +1,6 @@
+### Create a project, add first action
 
+### Add a second action 
 
 Second, I'm adding [Action Campaign](https://exchange.stackstorm.org/#activecampaign) action. 
 Same thing: start with finding a new action, inspect the action, and add a section to the `serverless.yml`. 
@@ -48,14 +50,22 @@ With that, a function will look like this in `serverless.yml`. While with this, 
 
 
 
-This time I don't bother to expose it to AWS API Gateway - we can perfectly test it with `sls`. 
+This time I don't bother to expose it to AWS API Gateway - we can perfectly test it with `sls`. Ah, while with that I've removed the extra `body` key from all the functions. From now on, the event is:
+```
+{
+    "first_name": "Santa", 
+    "last_name": "Clause", 
+    "email": "santa@mad.russian.xmas.com"
+}
+```
+
 
 ```
 # Build the bundle
 sls package
 
 # Test locally 
-sls stackstorm docker run --function RecordAC --passthrough --verbose --data '{"body":{"email":"santa@mad.russian.xmas.com", "first_name":"Santa", "last_name": "Clause"}}'
+sls stackstorm docker run --function RecordAC --passthrough --verbose --data '{"email":"santa@mad.russian.xmas.com", "first_name":"Santa", "last_name": "Clause"}'
 
 # Deploy to AWS 
 sls deploy
@@ -63,7 +73,7 @@ sls deploy
 
 
 # Test: call Lambda on AWS with sls 
-sls invoke --function RecordAC --logs --data '{"body":{"email":"santa@mad.russian.xmas.com", "first_name":"Santa", "last_name": "Clause"}}'
+sls invoke --function RecordAC --logs --data '{"email":"santa@mad.russian.xmas.com", "first_name":"Santa", "last_name": "Clause"}'
 
 # Check the logs
 sls logs --function RecordAC
@@ -71,9 +81,27 @@ sls logs --function RecordAC
 
 ```
 
-and I checked: Santa Clause appeared in ActiveCampaign indeed, and how do I know it's our Lambda? because I no longer believe Santa is real enough to subscribe to StackStorm community without our help. 
+and I checked: Santa Clause appeared in ActiveCampaign indeed, and how do I know it's our Lambda? because I no longer believe Santa is real enough to subscribe to StackStorm community without our help. [^todo-ac]
+
+Let's add the final action, RecordDB, that writes contact info into DynamoDB table. AWS pack on StackStorm Exchange heavily used and well maintained. I could have used `aws.dynamodb_put_item` action from there, but decided to keep it native: it's 15 lines of code, and no build as Boto library is already in AWS Lambda environment. Besides it's good to see both kinds of functions side by side in `serverless.com`.
+
+Deploy, invoke, logs. Rinse repeat.
+
+```
+sls deploy 
+...
+sls invoke --function RecordDB --logs --data '{"email":"santa@mad.russian.xmas.com", "first_name":"Santa", "last_name": "Clause"}'
+...
+
+sls logs --function RecordDB. 
+```
+
+NOTE: I wanted to make a tiny change to RecordDB. As deployment takes a while, I wanted to use the new cool Cloud9 editor and hack right on the cloud... But I couldn't: deployment package is too big. REALLY?RecordDB size is the same as for other actions. On second though, it's right: one serverless service - one deployment package (you can check it in `./.serverless/SERVICE_NAME.zip`). So either native or Exchange, actions are bundled together and all dependencies of all actions got deployed 
 
 
+### Coming up: Add a workflow
+
+### Conclusion
 
 # TODO's and notes
 * [NOTE] I like how data flow is visible in `serverless.yml`. In typical lambda, it's hidden inside lambda handlers and it's not obvious what goes in and what comes out. Here it's a clear view. 
@@ -81,5 +109,9 @@ and I checked: Santa Clause appeared in ActiveCampaign indeed, and how do I know
 * [FEATURE] StackStorm Exchange improvements: 1) see actions on pack 2) see open PRs across exchange + PRs per pack ? 
 
 
-* [BUG] ActiveCampaign.contact_add shall not throw exception if the user already exist, but return the 200 and message just like AC API does. 
-* 
+
+[^todo-ac]: [BUG] ActiveCampaign.contact_add shall not throw exception if the user already exist, but return the 200 and message just like AC API does. 
+
+
+
+[todo-change-AC-action]: "TODO d "
