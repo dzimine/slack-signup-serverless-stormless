@@ -11,7 +11,10 @@ logger.setLevel(logging.INFO)
 
 def endpoint(event, context):
     logger.info("Event received: {}".format(json.dumps(event)))
-    if 'email' not in event:
+    try:
+        event = event['body']
+        event['email']
+    except KeyError:
         raise Exception("Couldn't create the record: `email` not found.")
 
     table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
@@ -22,6 +25,5 @@ def endpoint(event, context):
 
     return {
         "statusCode": 200,
-        "body": json.dumps(item),
-        "json": item
+        "item": item
     }

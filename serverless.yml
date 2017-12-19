@@ -3,7 +3,8 @@ service: signup-stormless
 provider:
   name: aws
   runtime: python2.7
-  memorySize: 256
+  timeout: 12
+  memorySize: 128
   environment:
     DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
   iamRoleStatements:
@@ -25,7 +26,7 @@ functions:
         body: "{{ output }}"
   RecordAC:
     stackstorm:
-      action: activecampaign.contact_add
+      action: activecampaign.contact_sync
       input:
         email: "{{ input.body.email }}"
         first_name: "{{ input.body.first_name }}"
@@ -34,12 +35,8 @@ functions:
 
   RecordDB:
     handler: record_db/handler.endpoint
-    # package:
-    #   include:
-    #     - record_db/**
 
 resources:
-
   Resources:
     UsersDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
