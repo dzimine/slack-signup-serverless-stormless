@@ -36,6 +36,14 @@ functions:
 
   RecordDB:
     handler: record_db/handler.endpoint
+    # Don't mix with large stackstorm package to deploy individually
+    # and quickly edit with Cloud9
+    package:
+      individually: true
+      exclude:
+        - ./**
+      include:
+        - record_db/**
 
 custom:
   private: ${file(env.yml):private}
