@@ -3,7 +3,7 @@ service: signup-stormless
 provider:
   name: aws
   runtime: python2.7
-  memorySize: 128
+  memorySize: 256
   timeout: 12
   environment:
     DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
@@ -25,6 +25,7 @@ functions:
         statusCode: 200
         body: "{{ output }}"
   RecordAC:
+    timeout: 24
     stackstorm:
       action: activecampaign.contact_sync
       input:
