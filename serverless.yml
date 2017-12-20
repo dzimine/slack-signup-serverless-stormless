@@ -35,13 +35,15 @@ functions:
 
   RecordDB:
     handler: record_db/handler.endpoint
-    # package:
-    #   include:
-    #     - record_db/**
+
 custom:
   private: ${file(env.yml):private}
   stage: ${opt:stage, self:provider.stage}
   region: ${opt:region, self:provider.region}
+  apigs3:
+    dist: web
+    resourceName: web
+
 
 stepFunctions:
   stateMachines:
@@ -76,3 +78,4 @@ resources:
 plugins:
   - serverless-plugin-stackstorm
   - serverless-step-functions
+  - serverless-apig-s3

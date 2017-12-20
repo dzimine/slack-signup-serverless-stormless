@@ -12,7 +12,6 @@
   "author": "Dmitri Zimine",
   "dependencies": {},
   "devDependencies": {
-    "js-yaml": "^3.7.0",
     "serverless-apig-s3": "^1.3.0",
     "serverless-plugin-stackstorm": "^1.1.0",
     "serverless-step-functions": "^1.3.0"
